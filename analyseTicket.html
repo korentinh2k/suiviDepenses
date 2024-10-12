@@ -68,6 +68,12 @@
             max-height: 200px;
             overflow-y: auto;
         }
+        .back-button {
+            background-color: #6c757d; /* Couleur grise pour le bouton retour */
+        }
+        .back-button:hover {
+            background-color: #5a6268; /* Couleur plus foncée au survol */
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/2.1.1/tesseract.min.js"></script>
 </head>
@@ -78,6 +84,7 @@
         <input type="file" id="imageUpload" accept="image/png, image/jpeg" required>
 
         <button type="button" id="analyzeBtn">Analyser le ticket</button>
+        <button type="button" class="back-button" onclick="window.location.href='index.html'">Retour à l'index</button>
 
         <div class="loading" id="loadingMessage">Analyse en cours...</div>
         <div class="error" id="errorMessage">Erreur lors de l'analyse. Veuillez réessayer.</div>
@@ -123,16 +130,16 @@
                 img.src = event.target.result;
 
                 img.onload = async function() {
-                    // Prétraitement de l'image (exemple : amélioration de la luminosité/contraste)
                     const processedImage = await preprocessImage(img);
 
                     Tesseract.recognize(processedImage, 'fra')
                         .then(({ data: { text } }) => {
                             ocrResponseDiv.innerHTML = text; // Affiche le texte reconnu
                             const extractedData = parseTicketText(text);
+
                             // Affichage des résultats
                             motifResult.innerText = extractedData.motif || 'N/A';
-                            dateResult.innerText = extractedData.date || 'N/A';
+                            dateResult.innerText = formatDate(extractedData.date) || 'N/A'; // Formatée ici
                             montantResult.innerText = extractedData.montant ? extractedData.montant.toFixed(2) + ' EUR' : 'N/A';
 
                             loadingMessage.style.display = 'none'; // Cacher le message de chargement
@@ -148,29 +155,22 @@
         });
 
         async function preprocessImage(img) {
-            // Créez un canvas pour dessiner l'image
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = img.width;
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
-
-            // Améliorer l'image : par exemple, augmenter le contraste ou la luminosité
-            // ... ici vous pouvez appliquer des techniques de traitement d'image
-
             return canvas.toDataURL(); // Retourne l'image traitée sous forme de Data URL
         }
 
         function parseTicketText(text) {
-            // Modifié pour mieux capter le montant qui est encadré par "MONTANT :" et "EUR"
             const montantMatch = text.match(/MONTANT\s*:\s*([\d\s,.]+)\s*EUR/i);
-            const dateMatch = text.match(/(?:LE|DATE|Du|Le|L)\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i);
+            const dateMatch = text.match(/(?:LE|DATE|Du|Le|L)(?:\s+|\s*-|\s*:\s*)(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i);
             const motif = 'Dépense'; // Valeur par défaut
 
             let montant = null;
             if (montantMatch) {
-                // Nettoyage du montant pour éviter les erreurs de parsing
-                const rawMontant = montantMatch[1].replace(',', '.').replace(/\s/g, ''); // Supprime les espaces et remplace la virgule par un point
+                const rawMontant = montantMatch[1].replace(',', '.').replace(/\s/g, '');
                 montant = parseFloat(rawMontant);
             }
 
@@ -179,6 +179,12 @@
                 date: dateMatch ? dateMatch[1].replace(/[-]/g, '/') : '',
                 montant: montant
             };
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('/');
+            return `${parts[2] || '20' + parts[2]}-${parts[1]}-${parts[0]}`; // Format YYYY-MM-DD
         }
     </script>
 </body>
