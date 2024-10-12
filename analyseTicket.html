@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analyse de Ticket de Caisse</title>
     <style>
+        /* Styles similaires à l'exemple précédent */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -81,7 +82,12 @@
         <div class="loading" id="loadingMessage">Analyse en cours...</div>
         <div class="error" id="errorMessage">Erreur lors de l'analyse. Veuillez réessayer.</div>
 
-        <div id="result"></div>
+        <div id="result">
+            <h3>Résultats :</h3>
+            <p><strong>Motif :</strong> <span id="motifResult">N/A</span></p>
+            <p><strong>Date :</strong> <span id="dateResult">N/A</span></p>
+            <p><strong>Montant :</strong> <span id="montantResult">N/A</span></p>
+        </div>
         <div id="ocrResponse"></div>
     </form>
 
@@ -90,13 +96,17 @@
             const imageInput = document.getElementById('imageUpload');
             const loadingMessage = document.getElementById('loadingMessage');
             const errorMessage = document.getElementById('errorMessage');
-            const resultDiv = document.getElementById('result');
+            const motifResult = document.getElementById('motifResult');
+            const dateResult = document.getElementById('dateResult');
+            const montantResult = document.getElementById('montantResult');
             const ocrResponseDiv = document.getElementById('ocrResponse');
 
             // Afficher le message de chargement
             loadingMessage.style.display = 'block';
             errorMessage.style.display = 'none';
-            resultDiv.innerHTML = '';
+            motifResult.innerText = 'N/A';
+            dateResult.innerText = 'N/A';
+            montantResult.innerText = 'N/A';
             ocrResponseDiv.innerHTML = '';
 
             const file = imageInput.files[0];
@@ -112,35 +122,54 @@
                 const img = new Image();
                 img.src = event.target.result;
 
-                Tesseract.recognize(img, 'fra')
-                    .then(({ data: { text } }) => {
-                        ocrResponseDiv.innerHTML = text; // Affiche le texte reconnu
-                        const extractedData = parseTicketText(text);
-                        // Affichage des résultats
-                        resultDiv.innerHTML = `<strong>Motif :</strong> ${extractedData.motif || 'N/A'} <br>
-                                               <strong>Date :</strong> ${extractedData.date || 'N/A'} <br>
-                                               <strong>Montant :</strong> ${extractedData.montant ? extractedData.montant.toFixed(2) + ' EUR' : 'N/A'}`;
+                img.onload = async function() {
+                    // Prétraitement de l'image (exemple : amélioration de la luminosité/contraste)
+                    const processedImage = await preprocessImage(img);
 
-                        loadingMessage.style.display = 'none'; // Cacher le message de chargement
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        loadingMessage.style.display = 'none';
-                        errorMessage.style.display = 'block';
-                    });
+                    Tesseract.recognize(processedImage, 'fra')
+                        .then(({ data: { text } }) => {
+                            ocrResponseDiv.innerHTML = text; // Affiche le texte reconnu
+                            const extractedData = parseTicketText(text);
+                            // Affichage des résultats
+                            motifResult.innerText = extractedData.motif || 'N/A';
+                            dateResult.innerText = extractedData.date || 'N/A';
+                            montantResult.innerText = extractedData.montant ? extractedData.montant.toFixed(2) + ' EUR' : 'N/A';
+
+                            loadingMessage.style.display = 'none'; // Cacher le message de chargement
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            loadingMessage.style.display = 'none';
+                            errorMessage.style.display = 'block';
+                        });
+                };
             };
             reader.readAsDataURL(file);
         });
 
+        async function preprocessImage(img) {
+            // Créez un canvas pour dessiner l'image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            // Améliorer l'image : par exemple, augmenter le contraste ou la luminosité
+            // ... ici vous pouvez appliquer des techniques de traitement d'image
+
+            return canvas.toDataURL(); // Retourne l'image traitée sous forme de Data URL
+        }
+
         function parseTicketText(text) {
-            // Mise à jour des expressions régulières pour capturer le montant plus efficacement
-            const montantMatch = text.match(/(?:MONTANT\s*:\s*|TOTAL\s*|Payé\s*|€|Montant total\s*|Prix\s*|Total TTC\s*|(\d+[\.,]?\d*)\s*EUR)/i);
+            // Modifié pour mieux capter le montant qui est encadré par "MONTANT :" et "EUR"
+            const montantMatch = text.match(/MONTANT\s*:\s*([\d\s,.]+)\s*EUR/i);
             const dateMatch = text.match(/(?:LE|DATE|Du|Le|L)\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i);
 
             return {
                 motif: 'Dépense', // Valeur par défaut
                 date: dateMatch ? dateMatch[1].replace(/[-]/g, '/') : '',
-                montant: montantMatch ? parseFloat(montantMatch[1].replace(',', '.')) : null
+                montant: montantMatch ? parseFloat(montantMatch[1].replace(',', '.').replace(/\s/g, '')) : null
             };
         }
     </script>
