@@ -3,130 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse Ticket de Caisse</title>
+    <title>Analyse de Ticket</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
         }
 
         h1 {
             text-align: center;
         }
 
-        .form-container {
-            max-width: 600px;
-            margin: auto;
+        form {
+            background-color: white;
             padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
         }
 
-        .form-container label, .form-container input, .form-container button {
+        label {
             display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, select {
             width: 100%;
+            padding: 10px;
             margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         button {
+            width: 100%;
             padding: 10px;
-            font-size: 16px;
-            background-color: #28a745;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
-        
-        /* Loader style */
-        #loader {
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .loading {
             display: none;
             text-align: center;
             font-size: 16px;
             font-weight: bold;
-        }
-
-        /* Centered content */
-        .navigation {
-            text-align: center;
             margin-top: 20px;
         }
 
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
+        /* Style pour les messages d'erreur */
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
         }
 
-        .btn:hover {
-            background-color: #218838;
+        /* Media Queries pour mobiles */
+        @media (max-width: 600px) {
+            form {
+                padding: 15px;
+            }
+
+            button {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-
     <h1>Analyse de Ticket de Caisse</h1>
+    <form id="ticketForm">
+        <label for="imageUpload">Télécharger une photo du ticket :</label>
+        <input type="file" id="imageUpload" accept="image/*">
 
-    <div class="form-container">
-        <form id="analyseTicketForm">
-            <label for="image">Uploader une photo du ticket de caisse :</label>
-            <input type="file" id="image" name="image" accept="image/*" required>
+        <label for="motif">Motif :</label>
+        <input type="text" id="motif" name="motif">
 
-            <label for="motif">Motif :</label>
-            <input type="text" id="motif" name="motif" required>
+        <label for="date">Date :</label>
+        <input type="date" id="date" name="date">
 
-            <label for="date">Date :</label>
-            <input type="date" id="date" name="date" required>
+        <label for="montant">Montant :</label>
+        <input type="number" step="0.01" id="montant" name="montant">
 
-            <label for="montant">Montant :</label>
-            <input type="number" id="montant" name="montant" required>
+        <button type="button" id="analyzeBtn">Analyser le ticket</button>
 
-            <button type="submit">Analyser le ticket</button>
-        </form>
+        <div class="loading" id="loadingMessage">Analyse en cours...</div>
+        <div class="error" id="errorMessage">Erreur lors de l'analyse. Veuillez réessayer.</div>
 
-        <!-- Loader pour montrer le chargement pendant l'analyse -->
-        <div id="loader">Analyse en cours...</div>
-    </div>
-
-    <div class="navigation">
-        <!-- Lien pour retourner à la page principale -->
-        <a href="index.html" class="btn">Retour à la page principale</a>
-    </div>
+        <div id="result"></div>
+    </form>
 
     <script>
-        const form = document.getElementById('analyseTicketForm');
-        const loader = document.getElementById('loader');
+        document.getElementById('analyzeBtn').addEventListener('click', function() {
+            const imageInput = document.getElementById('imageUpload');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultDiv = document.getElementById('result');
 
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+            if (!imageInput.files[0]) {
+                alert("Veuillez télécharger une image du ticket.");
+                return;
+            }
 
-            // Afficher le loader pendant l'analyse
-            loader.style.display = 'block';
+            // Afficher le message de chargement
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            resultDiv.innerHTML = '';
 
-            // Simuler le traitement du ticket (analyse fictive)
-            setTimeout(() => {
-                // Masquer le loader après l'analyse
-                loader.style.display = 'none';
+            const file = imageInput.files[0];
+            const reader = new FileReader();
 
-                // Remplir les champs avec des valeurs fictives pour cette démonstration
-                document.getElementById('motif').value = "Achat vêtements";
-                document.getElementById('date').value = "2024-10-12"; // Exemple de date
-                document.getElementById('montant').value = 75.00; // Exemple de montant
+            reader.onload = function(event) {
+                const imageBase64 = event.target.result;
 
-                alert("Ticket analysé avec succès !");
-            }, 2000); // Simuler un délai de 2 secondes
+                // Simulation d'une requête à un OCR pour analyser le ticket
+                setTimeout(function() {
+                    // Exemple de réponse analysée (simulée)
+                    const ocrResult = {
+                        motif: "Chemise",
+                        date: "2024-10-10",
+                        montant: 75.00
+                    };
+
+                    // Remplir les champs avec les données analysées
+                    document.getElementById('motif').value = ocrResult.motif;
+                    document.getElementById('date').value = ocrResult.date;
+                    document.getElementById('montant').value = ocrResult.montant;
+
+                    // Cacher le message de chargement
+                    loadingMessage.style.display = 'none';
+
+                    // Afficher le résultat (optionnel)
+                    resultDiv.innerHTML = `<strong>Motif :</strong> ${ocrResult.motif} <br>
+                                           <strong>Date :</strong> ${ocrResult.date} <br>
+                                           <strong>Montant :</strong> ${ocrResult.montant.toFixed(2)} EUR`;
+                }, 2000); // Simulation d'un délai de traitement
+            };
+
+            reader.onerror = function() {
+                loadingMessage.style.display = 'none';
+                errorMessage.style.display = 'block';
+            };
+
+            reader.readAsDataURL(file);
         });
     </script>
-
 </body>
 </html>
