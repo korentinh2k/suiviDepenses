@@ -163,7 +163,7 @@
 
         function parseTicketText(text) {
             // Modifié pour mieux capter le montant qui est encadré par "MONTANT :" et "EUR"
-            const montantMatch = text.match(/MONTANT\s*:\s*([\d\s,.]+)\s*EUR/i);
+            const montantMatch = text.match(/MONTANT\s*([\d\s,.]+)\s*EUR/i);
             const dateMatch = text.match(/(?:LE|DATE|Du|Le|L)\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i);
 
             return {
