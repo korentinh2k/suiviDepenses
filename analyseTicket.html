@@ -163,13 +163,21 @@
 
         function parseTicketText(text) {
             // Modifié pour mieux capter le montant qui est encadré par "MONTANT :" et "EUR"
-            const montantMatch = text.match(/MONTANT\s*([\d\s,.]+)\s*EUR/i);
+            const montantMatch = text.match(/MONTANT\s*:\s*([\d\s,.]+)\s*EUR/i);
             const dateMatch = text.match(/(?:LE|DATE|Du|Le|L)\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i);
+            const motif = 'Dépense'; // Valeur par défaut
+
+            let montant = null;
+            if (montantMatch) {
+                // Nettoyage du montant pour éviter les erreurs de parsing
+                const rawMontant = montantMatch[1].replace(',', '.').replace(/\s/g, ''); // Supprime les espaces et remplace la virgule par un point
+                montant = parseFloat(rawMontant);
+            }
 
             return {
-                motif: 'Dépense', // Valeur par défaut
+                motif: motif,
                 date: dateMatch ? dateMatch[1].replace(/[-]/g, '/') : '',
-                montant: montantMatch ? parseFloat(montantMatch[1].replace(',', '.').replace(/\s/g, '')) : null
+                montant: montant
             };
         }
     </script>
