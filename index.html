@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi des dépenses</title>
+    <style>
+        /* Ajouter un style basique pour la liste de suggestions */
+        .autocomplete-suggestions {
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            position: absolute;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: white;
+        }
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+            background-color: white;
+        }
+        .autocomplete-suggestion:hover {
+            background-color: #e9e9e9;
+        }
+        /* Loader style */
+        #loader {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Suivi des dépenses</h1>
+    <form id="depenseForm">
+        <label for="date">Date :</label>
+        <input type="date" id="date" name="date" required><br><br>
+
+        <label for="etat">État :</label>
+        <select id="etat" name="etat" required>
+            <option value="">Sélectionner un état</option>
+        </select><br><br>
+
+        <label for="banque">Banque :</label>
+        <select id="banque" name="banque" required>
+            <option value="">Sélectionner une banque</option>
+        </select><br><br>
+
+        <label for="type">Type :</label>
+        <select id="type" name="type" required>
+            <option value="">Sélectionner un type</option>
+        </select><br><br>
+
+        <label for="code">Code :</label>
+        <select id="code" name="code" required>
+            <option value="">Sélectionner un code</option>
+        </select><br><br>
+
+        <label for="motif">Motif :</label>
+        <input type="text" id="motif" name="motif" required><br><br>
+        <div id="suggestions" class="autocomplete-suggestions"></div>
+
+        <label for="montant">Montant :</label>
+        <input type="number" id="montant" name="montant" required><br><br>
+
+        <button type="submit">Ajouter Dépense</button>
+    </form>
+
+    <!-- Loader -->
+    <div id="loader">Chargement...</div>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxYIiL5vhdJmku8wEslrC0rWuTIaajskz7cTv8KMcfAFSR1UTKjn3Dk81qKXVGz2vNugQ/exec';
+        const form = document.getElementById('depenseForm');
+        let motifs = [];
+
+        // Récupérer les options dynamiques
+        fetch(scriptURL + '?action=getOptions')
+            .then(response => response.json())
+            .then(options => {
+                // Remplir les listes déroulantes
+                populateSelect('etat', options.etat);
+                populateSelect('banque', options.banque);
+                populateSelect('type', options.type);
+                populateSelect('code', options.code);
+
+                // Stocker les motifs pour l'auto-complétion
+                motifs = options.motif;
+            })
+            .catch(error => console.error('Erreur lors de la récupération des options :', error));
+
+        // Fonction pour remplir les listes déroulantes
+        function populateSelect(selectId, values) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '';  // Vider les anciennes options
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = `Sélectionner un ${selectId}`;
+            select.appendChild(defaultOption); // Option par défaut
+
+            values.forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                select.appendChild(option);
+            });
+        }
+
+        // Auto-complétion pour le champ Motif
+        const motifInput = document.getElementById('motif');
+        const suggestionBox = document.getElementById('suggestions');
+
+        motifInput.addEventListener('input', function() {
+            const inputValue = motifInput.value.toLowerCase();
+            suggestionBox.innerHTML = '';  // Vider les suggestions
+
+            if (inputValue) {
+                const filteredMotifs = motifs.filter(motif => 
+                    motif.toLowerCase().includes(inputValue)
+                );
+
+                filteredMotifs.forEach(motif => {
+                    const suggestion = document.createElement('div');
+                    suggestion.textContent = motif;
+                    suggestion.classList.add('autocomplete-suggestion');
+                    suggestionBox.appendChild(suggestion);
+
+                    // Lorsqu'on clique sur une suggestion
+                    suggestion.addEventListener('click', function() {
+                        motifInput.value = motif;
+                        suggestionBox.innerHTML = '';  // Vider les suggestions après sélection
+                    });
+                });
+            }
+        });
+
+        // Gestion de la soumission du formulaire
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+
+            // Afficher la popup de validation
+            const confirmation = confirm("Êtes-vous sûr de vouloir ajouter cette dépense ?");
+            if (confirmation) {
+                // Afficher le loader
+                document.getElementById('loader').style.display = 'block';
+
+                const formData = new FormData(form);
+                fetch(scriptURL, { method: 'POST', body: formData })
+                    .then(response => {
+                        // Cacher le loader
+                        document.getElementById('loader').style.display = 'none';
+
+                        if (response.ok) {
+                            alert('Dépense ajoutée avec succès !');
+                            // Vider les champs du formulaire
+                            form.reset();
+                            suggestionBox.innerHTML = ''; // Vider les suggestions
+                        } else {
+                            alert('Erreur lors de l\'ajout de la dépense');
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('loader').style.display = 'none'; // Cacher le loader en cas d'erreur
+                        console.error('Erreur !', error.message);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
