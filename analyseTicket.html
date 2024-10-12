@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse Ticket de Caisse</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .form-container label, .form-container input, .form-container button {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+        
+        /* Loader style */
+        #loader {
+            display: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Centered content */
+        .navigation {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Analyse de Ticket de Caisse</h1>
+
+    <div class="form-container">
+        <form id="analyseTicketForm">
+            <label for="image">Uploader une photo du ticket de caisse :</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+
+            <label for="motif">Motif :</label>
+            <input type="text" id="motif" name="motif" required>
+
+            <label for="date">Date :</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="montant">Montant :</label>
+            <input type="number" id="montant" name="montant" required>
+
+            <button type="submit">Analyser le ticket</button>
+        </form>
+
+        <!-- Loader pour montrer le chargement pendant l'analyse -->
+        <div id="loader">Analyse en cours...</div>
+    </div>
+
+    <div class="navigation">
+        <!-- Lien pour retourner à la page principale -->
+        <a href="index.html" class="btn">Retour à la page principale</a>
+    </div>
+
+    <script>
+        const form = document.getElementById('analyseTicketForm');
+        const loader = document.getElementById('loader');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Afficher le loader pendant l'analyse
+            loader.style.display = 'block';
+
+            // Simuler le traitement du ticket (analyse fictive)
+            setTimeout(() => {
+                // Masquer le loader après l'analyse
+                loader.style.display = 'none';
+
+                // Remplir les champs avec des valeurs fictives pour cette démonstration
+                document.getElementById('motif').value = "Achat vêtements";
+                document.getElementById('date').value = "2024-10-12"; // Exemple de date
+                document.getElementById('montant').value = 75.00; // Exemple de montant
+
+                alert("Ticket analysé avec succès !");
+            }, 2000); // Simuler un délai de 2 secondes
+        });
+    </script>
+
+</body>
+</html>
