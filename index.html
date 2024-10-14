@@ -3,145 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi des dépenses</title>
+    <title>Formulaire de Dépense</title>
     <style>
-        /* Styles de base */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
             background-color: #f4f4f4;
         }
 
         h1 {
+            color: #333;
             text-align: center;
         }
 
         form {
-            background-color: white;
+            background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 500px; /* Limite de largeur pour les grands écrans */
-            margin: auto; /* Centre le formulaire */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: auto;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+            margin: 10px 0 5px;
         }
 
-        input, select {
-            width: 100%; /* Prend toute la largeur disponible */
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
             padding: 10px;
-            margin-bottom: 15px; /* Espace entre les champs */
             border: 1px solid #ccc;
             border-radius: 4px;
+            box-sizing: border-box;
         }
 
         button {
-            width: 100%; /* Bouton prend toute la largeur */
-            padding: 10px;
-            background-color: #28a745; /* Couleur verte */
+            padding: 10px 15px;
+            background-color: #28a745;
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
             cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+            width: 100%;
         }
 
         button:hover {
-            background-color: #218838; /* Couleur plus foncée au survol */
+            background-color: #218838;
         }
 
-        /* Ajouter un style basique pour la liste de suggestions */
-        .autocomplete-suggestions {
-            border: 1px solid #d4d4d4;
-            border-bottom: none;
-            border-top: none;
-            z-index: 99;
-            position: absolute;
-            max-height: 150px;
-            overflow-y: auto;
-            background-color: white;
-            width: calc(100% - 20px); /* Pour s'assurer que la largeur correspond à l'input */
+        #loader {
+            display: none;
+            color: #007bff;
+            text-align: center;
+            margin-top: 10px;
         }
 
         .autocomplete-suggestion {
-            padding: 10px;
             cursor: pointer;
-            background-color: white;
+            background-color: #f1f1f1;
+            padding: 5px;
+            border: 1px solid #ccc;
         }
 
         .autocomplete-suggestion:hover {
-            background-color: #e9e9e9;
+            background-color: #e0e0e0;
         }
 
-        /* Loader style */
-        #loader {
-            display: none;
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 20px;
-            font-weight: bold;
+        #suggestions {
+            position: absolute;
+            border: 1px solid #ccc;
+            z-index: 999;
+            background: white;
+            max-height: 200px;
+            overflow-y: auto;
+            width: calc(100% - 22px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-top: -1px; /* Align with the input border */
         }
 
-        /* Media Queries pour un meilleur affichage sur mobiles */
+        /* Responsive Styles */
         @media (max-width: 600px) {
             form {
-                padding: 15px; /* Réduit le padding sur les petits écrans */
+                padding: 15px;
             }
 
             button {
-                font-size: 14px; /* Réduit la taille de la police du bouton */
+                padding: 12px 10px;
             }
         }
     </style>
 </head>
 <body>
-    <h1>- Suivi des dépenses -</h1>
+    <h1>Ajouter une Dépense</h1>
     <form id="depenseForm">
         <label for="date">Date :</label>
-        <input type="date" id="date" name="date" required>
+        <input type="date" id="date" name="date" required><br><br>
 
         <label for="etat">État :</label>
-        <select id="etat" name="etat" required>
-            <option value="">Sélectionner un état</option>
-        </select>
+        <select id="etat" name="etat" required></select><br><br>
 
         <label for="banque">Banque :</label>
-        <select id="banque" name="banque" required>
-            <option value="">Sélectionner une banque</option>
-        </select>
+        <select id="banque" name="banque" required></select><br><br>
 
         <label for="type">Type :</label>
-        <select id="type" name="type" required>
-            <option value="">Sélectionner un type</option>
-        </select>
+        <select id="type" name="type" required></select><br><br>
 
         <label for="code">Code :</label>
-        <select id="code" name="code" required>
-            <option value="">Sélectionner un code</option>
-        </select>
+        <select id="code" name="code" required></select><br><br>
 
         <label for="motif">Motif :</label>
-        <input type="text" id="motif" name="motif" required>
-        <div id="suggestions" class="autocomplete-suggestions"></div>
+        <input type="text" id="motif" name="motif" required autocomplete="off">
+        <div id="suggestions"></div><br>
 
         <label for="montant">Montant :</label>
-        <input type="number" id="montant" name="montant" required>
+        <input type="text" id="montant" name="montant" value="0,0" placeholder="0,0" required><br><br>
 
-        <button type="submit">Ajouter Dépense</button>
+        <label for="compte">Compte :</label>
+        <select id="compte" name="compte" required></select><br><br>
+
+        <button type="submit">Soumettre</button>
+        <div id="loader">Envoi en cours...</div>
     </form>
 
-    <!-- Loader -->
-    <div id="loader">Chargement...</div>
-
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxYIiL5vhdJmku8wEslrC0rWuTIaajskz7cTv8KMcfAFSR1UTKjn3Dk81qKXVGz2vNugQ/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyFGgBsNyYkawKNooT9jaV6630FD-4mXhtrs8hEyvZlG5gJYEETtS7E_nlvIz_BUU8aew/exec';
         const form = document.getElementById('depenseForm');
         let motifs = [];
 
@@ -149,25 +140,22 @@
         fetch(scriptURL + '?action=getOptions')
             .then(response => response.json())
             .then(options => {
-                // Remplir les listes déroulantes
                 populateSelect('etat', options.etat);
                 populateSelect('banque', options.banque);
                 populateSelect('type', options.type);
                 populateSelect('code', options.code);
-
-                // Stocker les motifs pour l'auto-complétion
+                populateSelect('compte', options.compte);
                 motifs = options.motif;
             })
             .catch(error => console.error('Erreur lors de la récupération des options :', error));
 
-        // Fonction pour remplir les listes déroulantes
         function populateSelect(selectId, values) {
             const select = document.getElementById(selectId);
-            select.innerHTML = '';  // Vider les anciennes options
+            select.innerHTML = '';
             const defaultOption = document.createElement('option');
             defaultOption.value = '';
             defaultOption.textContent = `Sélectionner un ${selectId}`;
-            select.appendChild(defaultOption); // Option par défaut
+            select.appendChild(defaultOption);
 
             values.forEach(value => {
                 const option = document.createElement('option');
@@ -177,13 +165,12 @@
             });
         }
 
-        // Auto-complétion pour le champ Motif
         const motifInput = document.getElementById('motif');
         const suggestionBox = document.getElementById('suggestions');
 
         motifInput.addEventListener('input', function() {
             const inputValue = motifInput.value.toLowerCase();
-            suggestionBox.innerHTML = '';  // Vider les suggestions
+            suggestionBox.innerHTML = '';
 
             if (inputValue) {
                 const filteredMotifs = motifs.filter(motif => 
@@ -196,50 +183,42 @@
                     suggestion.classList.add('autocomplete-suggestion');
                     suggestionBox.appendChild(suggestion);
 
-                    // Lorsqu'on clique sur une suggestion
                     suggestion.addEventListener('click', function() {
                         motifInput.value = motif;
-                        suggestionBox.innerHTML = '';  // Vider les suggestions après sélection
+                        suggestionBox.innerHTML = '';
                     });
                 });
             }
         });
 
-        // Gestion de la soumission du formulaire
         form.addEventListener('submit', e => {
             e.preventDefault();
 
-            // Afficher la popup de validation
+            const montantInputValue = document.getElementById('montant').value; // Aucune validation de format ici
+
             const confirmation = confirm("Êtes-vous sûr de vouloir ajouter cette dépense ?");
             if (confirmation) {
-                // Afficher le loader
                 document.getElementById('loader').style.display = 'block';
 
                 const formData = new FormData(form);
+                formData.set('montant', montantInputValue); // Set montant
                 fetch(scriptURL, { method: 'POST', body: formData })
                     .then(response => {
-                        // Cacher le loader
                         document.getElementById('loader').style.display = 'none';
-
                         if (response.ok) {
-                            alert('Dépense ajoutée avec succès !');
-                            // Vider les champs du formulaire
+                            alert("Dépense ajoutée avec succès !");
                             form.reset();
                             suggestionBox.innerHTML = ''; // Vider les suggestions
                         } else {
-                            alert('Erreur lors de l\'ajout de la dépense');
+                            alert("Erreur lors de l'ajout de la dépense !");
                         }
                     })
                     .catch(error => {
-                        document.getElementById('loader').style.display = 'none'; // Cacher le loader en cas d'erreur
-                        console.error('Erreur !', error.message);
+                        document.getElementById('loader').style.display = 'none';
+                        alert("Erreur lors de l'ajout de la dépense : " + error.message);
                     });
             }
         });
     </script>
-        <div class="navigation">
-        <!-- Lien vers la page d'analyse de ticket -->
-        <a href="analyseTicket.html" class="btn">Analyser un Ticket de Caisse</a>
-    </div>
 </body>
 </html>
