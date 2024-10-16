@@ -204,15 +204,22 @@
         });
 
         // Ajout d'un écouteur sur le champ "code" pour remplir automatiquement le champ "Motif"
-document.getElementById('code').addEventListener('change', function() {
-    const codeValue = this.value;
+            document.getElementById('code').addEventListener('change', function() {
+            const codeValue = this.value;
 
-    // Si le code sélectionné est "-DAB", on remplit automatiquement le champ "Motif"
-    if (codeValue === '-DAB') {
-        document.getElementById('motif').value = 'Retrait liquide';
-    }
-});
-
+        // Si le code sélectionné est "-DAB", on remplit automatiquement le champ "Motif"
+            if (codeValue === '-DAB') {
+            document.getElementById('motif').value = 'Retrait liquide';
+        }
+                // Si le code sélectionné est "-NDF", on remplit automatiquement le champ "Motif"
+                if (codeValue === '-NDF') {
+            document.getElementById('motif').value = 'Note de frais : ';
+        }
+                        // Si le code sélectionné est "-EDF", on remplit automatiquement le champ "Motif"
+                        if (codeValue === '-EDF') {
+            document.getElementById('motif').value = 'EDF Aubépine';
+        }
+        });
 
         // Récupérer les options dynamiques
         fetch(scriptURL + '?action=getOptions')
