@@ -102,6 +102,13 @@
     </div>
 
     <script>
+        // Désactivation de tout comportement de soumission de formulaire
+        document.addEventListener('DOMContentLoaded', function() {
+            const formContainer = document.querySelector('.form-container');
+            formContainer.addEventListener('submit', (e) => e.preventDefault());
+        });
+
+        // Action de l'analyse du ticket via le bouton
         document.getElementById('analyzeBtn').addEventListener('click', async function() {
             const imageInput = document.getElementById('imageUpload');
             const loadingMessage = document.getElementById('loadingMessage');
@@ -110,6 +117,9 @@
             const dateResult = document.getElementById('dateResult');
             const montantResult = document.getElementById('montantResult');
             const ocrResponseDiv = document.getElementById('ocrRawText'); // Div pour le texte brut
+
+            // Empêcher tout rechargement ou comportement inattendu
+            event.preventDefault();
 
             // Afficher le message de chargement
             loadingMessage.style.display = 'block';
