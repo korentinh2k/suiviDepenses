@@ -118,6 +118,32 @@
         .redirect-button:hover {
             background-color: #0056b3;
         }
+
+        /* Styles for the history section */
+        .history {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .history h2 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .history-item {
+            margin-bottom: 5px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .history-item span {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -126,14 +152,11 @@
         <label for="date">Date :</label>
         <input type="date" id="date" name="date" required><br><br>
 
-        <label for="etat">État :</label>
-        <select id="etat" name="etat" required></select><br><br>
+        <label for="compte">Compte :</label>
+        <select id="compte" name="compte" required></select><br><br>
 
         <label for="banque">Banque :</label>
         <select id="banque" name="banque" required></select><br><br>
-
-        <label for="type">Type :</label>
-        <select id="type" name="type" required></select><br><br>
 
         <label for="code">Code :</label>
         <select id="code" name="code" required></select><br><br>
@@ -145,12 +168,25 @@
         <label for="montant">Montant :</label>
         <input type="text" id="montant" name="montant" value="0,0" placeholder="0,0" required><br><br>
 
-        <label for="compte">Compte :</label>
-        <select id="compte" name="compte" required></select><br><br>
+        <label for="etat">État :</label>
+        <select id="etat" name="etat" required>
+            <option value="-">-</option>
+        </select><br><br>
+
+        <label for="type">Type :</label>
+        <select id="type" name="type" required>
+            <option value="-">-</option>
+        </select><br><br>
 
         <button type="submit">Soumettre</button>
         <div id="loader">Envoi en cours...</div>
     </form>
+
+    <!-- Historique des dernières opérations -->
+    <div class="history" id="history">
+        <h2>Historique des dernières opérations</h2>
+        <div id="historyList"></div>
+    </div>
 
     <!-- Bouton pour rediriger vers analyseTicket.html -->
     <a href="analyseTicket.html" class="redirect-button">Aller à l'analyse des tickets</a>
@@ -160,26 +196,36 @@
         const form = document.getElementById('depenseForm');
         let motifs = [];
 
+        // Fonction pour remplir la date avec la date du jour
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const today = new Date().toISOString().split('T')[0];  // Formater la date au format YYYY-MM-DD
+            document.getElementById('date').value = today;  // Pré-remplir la date
+            loadHistory(); // Charger l'historique des opérations au chargement de la page
+        });
+
         // Récupérer les options dynamiques
         fetch(scriptURL + '?action=getOptions')
             .then(response => response.json())
             .then(options => {
-                populateSelect('etat', options.etat);
+                populateSelect('etat', options.etat, true);
                 populateSelect('banque', options.banque);
-                populateSelect('type', options.type);
+                populateSelect('type', options.type, true);
                 populateSelect('code', options.code);
                 populateSelect('compte', options.compte);
                 motifs = options.motif;
             })
             .catch(error => console.error('Erreur lors de la récupération des options :', error));
 
-        function populateSelect(selectId, values) {
+        function populateSelect(selectId, values, hasDefaultDash = false) {
             const select = document.getElementById(selectId);
             select.innerHTML = '';
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = `Sélectionner un ${selectId}`;
-            select.appendChild(defaultOption);
+
+            if (hasDefaultDash) {
+                const dashOption = document.createElement('option');
+                dashOption.value = '-';
+                dashOption.textContent = '-';
+                select.appendChild(dashOption);
+            }
 
             values.forEach(value => {
                 const option = document.createElement('option');
@@ -233,6 +279,8 @@
                             alert("Dépense ajoutée avec succès !");
                             form.reset();
                             suggestionBox.innerHTML = ''; // Vider les suggestions
+                            saveToHistory(formData); // Sauvegarder dans l'historique
+                            loadHistory(); // Recharger l'historique après soumission
                         } else {
                             alert("Erreur lors de l'ajout de la dépense !");
                         }
@@ -243,6 +291,50 @@
                     });
             }
         });
+
+        // Fonction pour sauvegarder l'opération dans le localStorage
+        function saveToHistory(formData) {
+            const operation = {
+                date: formData.get('date'),
+                compte: formData.get('compte'),
+                banque: formData.get('banque'),
+                code: formData.get('code'),
+                motif: formData.get('motif'),
+                montant: formData.get('montant'),
+                etat: formData.get('etat'),
+                type: formData.get('type')
+            };
+
+            let history = JSON.parse(localStorage.getItem('depenseHistory')) || [];
+            history.unshift(operation); // Ajouter l'opération au début
+            if (history.length > 10) {
+                history.pop(); // Limiter l'historique à 10 opérations
+            }
+            localStorage.setItem('depenseHistory', JSON.stringify(history));
+        }
+
+        // Fonction pour charger et afficher l'historique
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            const history = JSON.parse(localStorage.getItem('depenseHistory')) || [];
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history-item');
+                historyItem.innerHTML = `
+                    <span><strong>Date:</strong> ${item.date}</span>
+                    <span><strong>Compte:</strong> ${item.compte}</span>
+                    <span><strong>Banque:</strong> ${item.banque}</span>
+                    <span><strong>Code:</strong> ${item.code}</span>
+                    <span><strong>Motif:</strong> ${item.motif}</span>
+                    <span><strong>Montant:</strong> ${item.montant}</span>
+                    <span><strong>État:</strong> ${item.etat}</span>
+                    <span><strong>Type:</strong> ${item.type}</span>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
     </script>
 </body>
 </html>
