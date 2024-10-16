@@ -203,6 +203,17 @@
             loadHistory(); // Charger l'historique des opérations au chargement de la page
         });
 
+        // Ajout d'un écouteur sur le champ "code" pour remplir automatiquement le champ "Motif"
+document.getElementById('code').addEventListener('change', function() {
+    const codeValue = this.value;
+
+    // Si le code sélectionné est "-DAB", on remplit automatiquement le champ "Motif"
+    if (codeValue === '-DAB') {
+        document.getElementById('motif').value = 'Retrait liquide';
+    }
+});
+
+
         // Récupérer les options dynamiques
         fetch(scriptURL + '?action=getOptions')
             .then(response => response.json())
