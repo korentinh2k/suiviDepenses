@@ -208,15 +208,15 @@
             const codeValue = this.value;
 
         // Si le code sélectionné est "-DAB", on remplit automatiquement le champ "Motif"
-            if (codeValue === '-DAB') {
+            if (codeValue === ' -DAB') {
             document.getElementById('motif').value = 'Retrait liquide';
         }
                 // Si le code sélectionné est "-NDF", on remplit automatiquement le champ "Motif"
-                if (codeValue === '-NDF') {
+                if (codeValue === ' -NDF') {
             document.getElementById('motif').value = 'Note de frais : ';
         }
                         // Si le code sélectionné est "-EDF", on remplit automatiquement le champ "Motif"
-                        if (codeValue === '-EDF') {
+                        if (codeValue === ' -EDF') {
             document.getElementById('motif').value = 'EDF Aubépine';
         }
         });
