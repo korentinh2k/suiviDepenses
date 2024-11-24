@@ -1,365 +1,123 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulaire de Dépense</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        form {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: auto;
-        }
-
-        label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-
-        input[type="text"],
-        input[type="date"],
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 10px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        #loader {
-            display: none;
-            color: #007bff;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .autocomplete-suggestion {
-            cursor: pointer;
-            background-color: #f1f1f1;
-            padding: 5px;
-            border: 1px solid #ccc;
-        }
-
-        .autocomplete-suggestion:hover {
-            background-color: #e0e0e0;
-        }
-
-        #suggestions {
-            position: absolute;
-            border: 1px solid #ccc;
-            z-index: 999;
-            background: white;
-            max-height: 200px;
-            overflow-y: auto;
-            width: calc(100% - 22px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            margin-top: -1px; /* Align with the input border */
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 600px) {
-            form {
-                padding: 15px;
-            }
-
-            button {
-                padding: 12px 10px;
-            }
-        }
-
-        /* Styles for the redirect button */
-        .redirect-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            padding: 10px;
-            text-align: center;
-            margin-top: 20px;
-            display: block;
-            width: 100%;
-            text-decoration: none;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-
-        .redirect-button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Styles for the history section */
-        .history {
-            margin-top: 30px;
-            padding: 15px;
-            background: #fafafa;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
-        .history h2 {
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-
-        .history-item {
-            margin-bottom: 5px;
-            padding: 10px;
-            background: white;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .history-item span {
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Parc - Connexion</title>
+  <style>
+    /* CSS pour la mise en page responsive */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-container {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Ajouter une Dépense</h1>
-    <form id="depenseForm">
-        <label for="date">Date :</label>
-        <input type="date" id="date" name="date" required><br><br>
 
-        <label for="compte">Compte :</label>
-        <select id="compte" name="compte" required></select><br><br>
+  <div class="login-container">
+    <h2>Connexion</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Mot de passe" required>
+    <button onclick="login()">Se connecter</button>
+    <div id="message" class="error"></div>
+  </div>
 
-        <label for="banque">Banque :</label>
-        <select id="banque" name="banque" required></select><br><br>
+  <script>
+    function login() {
+      // Récupérer les données du formulaire
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
 
-        <label for="code">Code :</label>
-        <select id="code" name="code" required></select><br><br>
+      // Vérifier que l'email et le mot de passe ne sont pas vides
+      if (!email || !password) {
+        document.getElementById('message').textContent = "Veuillez remplir tous les champs.";
+        return;
+      }
 
-        <label for="motif">Motif :</label>
-        <input type="text" id="motif" name="motif" required autocomplete="off">
-        <div id="suggestions"></div><br>
+      // Créer l'objet de données pour l'API
+      var data = {
+        email: email,
+        password: password
+      };
 
-        <label for="montant">Montant :</label>
-        <input type="text" id="montant" name="montant" value="0,0" placeholder="0,0" required><br><br>
-
-        <label for="etat">État :</label>
-        <select id="etat" name="etat" required>
-            <option value="-">-</option>
-        </select><br><br>
-
-        <label for="type">Type :</label>
-        <select id="type" name="type" required>
-            <option value="-">-</option>
-        </select><br><br>
-
-        <button type="submit">Soumettre</button>
-        <div id="loader">Envoi en cours...</div>
-    </form>
-
-        <!-- Bouton pour rediriger vers indexASA.html -->
-        <a href="indexASA.html" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-            Aller sur Dépenses ASA
-        </a>
-
-    <!-- Historique des dernières opérations -->
-    <div class="history" id="history">
-        <h2>Historique des dernières opérations</h2>
-        <div id="historyList"></div>
-    </div>
-
-    <!-- Bouton pour rediriger vers analyseTicket.html -->
-    <a href="analyseTicket.html" class="redirect-button">Aller à l'analyse des tickets</a>
-
-
-
-    <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwtAC2-ZeOVfi0N-hFUVoK2FCQdjEfRIB19mVOw_vtIu1v1FVlCMEqQDTy1lHWyayukTA/exec';
-        const form = document.getElementById('depenseForm');
-        let motifs = [];
-
-        // Fonction pour remplir la date avec la date du jour
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const today = new Date().toISOString().split('T')[0];  // Formater la date au format YYYY-MM-DD
-            document.getElementById('date').value = today;  // Pré-remplir la date
-            loadHistory(); // Charger l'historique des opérations au chargement de la page
-        });
-
-        // Ajout d'un écouteur sur le champ "code" pour remplir automatiquement le champ "Motif"
-            document.getElementById('code').addEventListener('change', function() {
-            const codeValue = this.value;
-
-        // Si le code sélectionné est "-DAB", on remplit automatiquement le champ "Motif"
-            if (codeValue === ' -DAB') {
-            document.getElementById('motif').value = 'Retrait liquide';
+      // Envoyer les données via fetch à l'URL du script Google Apps
+      fetch('https://script.google.com/macros/s/AKfycbzfoIVHKhTci5lwkzACUt4eKJL48oSrrZfjsEBs2pbQDpfzI2b9JYexRauzhNRGgwR9sQ/exec', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Connexion réussie
+          document.getElementById('message').className = 'success';
+          document.getElementById('message').textContent = "Connexion réussie!";
+          // Rediriger vers une autre page ou afficher autre contenu ici
+          window.location.href = "dashboard.html";  // Remplacez par la page à rediriger après succès
+        } else {
+          // Erreur de connexion
+          document.getElementById('message').className = 'error';
+          document.getElementById('message').textContent = data.message;
         }
-                // Si le code sélectionné est "-NDF", on remplit automatiquement le champ "Motif"
-                if (codeValue === ' -NDF') {
-            document.getElementById('motif').value = 'Note de frais : ';
-        }
-                        // Si le code sélectionné est "-EDF", on remplit automatiquement le champ "Motif"
-                        if (codeValue === ' -EDF') {
-            document.getElementById('motif').value = 'EDF Aubépine';
-        }
-        });
+      })
+      .catch(error => {
+        console.error('Erreur de connexion:', error);
+        document.getElementById('message').className = 'error';
+        document.getElementById('message').textContent = "Erreur lors de la connexion.";
+      });
+    }
+  </script>
 
-        // Récupérer les options dynamiques
-        fetch(scriptURL + '?action=getOptions')
-            .then(response => response.json())
-            .then(options => {
-                populateSelect('etat', options.etat, true);
-                populateSelect('banque', options.banque);
-                populateSelect('type', options.type, true);
-                populateSelect('code', options.code);
-                populateSelect('compte', options.compte);
-                motifs = options.motif;
-            })
-            .catch(error => console.error('Erreur lors de la récupération des options :', error));
-
-        function populateSelect(selectId, values, hasDefaultDash = false) {
-            const select = document.getElementById(selectId);
-            select.innerHTML = '';
-
-            if (hasDefaultDash) {
-                const dashOption = document.createElement('option');
-                dashOption.value = '-';
-                dashOption.textContent = '-';
-                select.appendChild(dashOption);
-            }
-
-            values.forEach(value => {
-                const option = document.createElement('option');
-                option.value = value;
-                option.textContent = value;
-                select.appendChild(option);
-            });
-        }
-
-        const motifInput = document.getElementById('motif');
-        const suggestionBox = document.getElementById('suggestions');
-
-        motifInput.addEventListener('input', function() {
-            const inputValue = motifInput.value.toLowerCase();
-            suggestionBox.innerHTML = '';
-
-            if (inputValue) {
-                const filteredMotifs = motifs.filter(motif => 
-                    motif.toLowerCase().includes(inputValue)
-                );
-
-                filteredMotifs.forEach(motif => {
-                    const suggestion = document.createElement('div');
-                    suggestion.textContent = motif;
-                    suggestion.classList.add('autocomplete-suggestion');
-                    suggestionBox.appendChild(suggestion);
-
-                    suggestion.addEventListener('click', function() {
-                        motifInput.value = motif;
-                        suggestionBox.innerHTML = '';
-                    });
-                });
-            }
-        });
-
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-
-            const montantInputValue = document.getElementById('montant').value; // Aucune validation de format ici
-
-            const confirmation = confirm("Êtes-vous sûr de vouloir ajouter cette dépense ?");
-            if (confirmation) {
-                document.getElementById('loader').style.display = 'block';
-
-                const formData = new FormData(form);
-                formData.set('montant', montantInputValue); // Set montant
-                fetch(scriptURL, { method: 'POST', body: formData })
-                    .then(response => {
-                        document.getElementById('loader').style.display = 'none';
-                        if (response.ok) {
-                            alert("Dépense ajoutée avec succès !");
-                            form.reset();
-                            suggestionBox.innerHTML = ''; // Vider les suggestions
-                            saveToHistory(formData); // Sauvegarder dans l'historique
-                            loadHistory(); // Recharger l'historique après soumission
-                        } else {
-                            alert("Erreur lors de l'ajout de la dépense !");
-                        }
-                    })
-                    .catch(error => {
-                        document.getElementById('loader').style.display = 'none';
-                        alert("Erreur lors de l'ajout de la dépense : " + error.message);
-                    });
-            }
-        });
-
-        // Fonction pour sauvegarder l'opération dans le localStorage
-        function saveToHistory(formData) {
-            const operation = {
-                date: formData.get('date'),
-                compte: formData.get('compte'),
-                banque: formData.get('banque'),
-                code: formData.get('code'),
-                motif: formData.get('motif'),
-                montant: formData.get('montant'),
-                etat: formData.get('etat'),
-                type: formData.get('type')
-            };
-
-            let history = JSON.parse(localStorage.getItem('depenseHistory')) || [];
-            history.unshift(operation); // Ajouter l'opération au début
-            if (history.length > 10) {
-                history.pop(); // Limiter l'historique à 10 opérations
-            }
-            localStorage.setItem('depenseHistory', JSON.stringify(history));
-        }
-
-        // Fonction pour charger et afficher l'historique
-        function loadHistory() {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
-
-            const history = JSON.parse(localStorage.getItem('depenseHistory')) || [];
-            history.forEach(item => {
-                const historyItem = document.createElement('div');
-                historyItem.classList.add('history-item');
-                historyItem.innerHTML = `
-                    <span><strong>Date:</strong> ${item.date}</span>
-                    <span><strong>Compte:</strong> ${item.compte}</span>
-                    <span><strong>Banque:</strong> ${item.banque}</span>
-                    <span><strong>Code:</strong> ${item.code}</span>
-                    <span><strong>Motif:</strong> ${item.motif}</span>
-                    <span><strong>Montant:</strong> ${item.montant}</span>
-                    <span><strong>État:</strong> ${item.etat}</span>
-                    <span><strong>Type:</strong> ${item.type}</span>
-                `;
-                historyList.appendChild(historyItem);
-            });
-        }
-    </script>
 </body>
 </html>
