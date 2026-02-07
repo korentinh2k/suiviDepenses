@@ -114,7 +114,6 @@ button:hover {
     <span>Commun</span>
     <input type="hidden" id="compte" name="compte" value="Commun">
 
-
     <label>Banque :</label>
     <select id="banque" name="banque" required></select>
 
@@ -128,14 +127,15 @@ button:hover {
     <label>Montant :</label>
     <input type="text" id="montant" name="montant" value="0,0" required>
 
-    <label>État :</label>
-    <select id="etat" name="etat" required></select>
+    <label>Etat :</label>
+    <span>ASA</span>
+    <input type="hidden" id="etat" name="etat" value="ASA">
 
     <label>Type :</label>
     <select id="type" name="type" required></select>
 
-    <button type="submit">Soumettre</button>
-    <div id="loader">Envoi en cours...</div>
+    <button type="submit">Soumettre dans le fichier Excel de son amour préféré !</button>
+    <div id="loader">Envoi en cours... Merci ma chérie d'amour !</div>
 </form>
 
 <div class="history">
@@ -230,7 +230,7 @@ form.addEventListener('submit', async e => {
         const result = await response.json();
         if (!result.success) throw new Error(result.error);
 
-        alert("Dépense ajoutée");
+        alert("Dépense ajoutée. Merci mon amour !");
         saveToHistory(formData);
         form.reset();
         suggestionBox.innerHTML = '';
