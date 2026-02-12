@@ -124,7 +124,7 @@ button:hover {
     <div id="suggestions"></div>
 
     <label>Montant :</label>
-    <input type="text" id="montant" name="montant" value="0,0" required>
+    <input type="text" id="montant" name="montant" placeholder="(€)" value="" required>
 
     <label>État :</label>
     <select id="etat" name="etat" required></select>
@@ -148,8 +148,13 @@ const motifInput = document.getElementById('motif');
 const suggestionBox = document.getElementById('suggestions');
 let motifs = [];
 
+function setTodayDate() {
+    document.getElementById('date').value =
+        new Date().toISOString().split('T')[0];
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+    setTodayDate();
     loadHistory();
 });
 
@@ -231,6 +236,7 @@ form.addEventListener('submit', async e => {
         alert("Dépense ajoutée");
         saveToHistory(formData);
         form.reset();
+        setTodayDate();
         suggestionBox.innerHTML = '';
         loadHistory();
 
@@ -284,6 +290,34 @@ function loadHistory() {
         list.appendChild(div);
     });
 }
+
+/* =============================
+   PRÉREMPLISSAGE MOTIF PAR CODE
+============================= */
+const codeSelect = document.getElementById('code');
+
+function autofillMotifFromCode(code) {
+    switch (code) {
+        case 'NDF':
+            motifInput.value = 'Note de frais : ';
+            break;
+        case 'DAB':
+            motifInput.value = 'Retrait liquide';
+            break;
+        case 'RIE':
+            motifInput.value = 'RIE Infopro';
+            break;
+        default:
+            // Ne rien faire pour les autres codes
+            break;
+    }
+    suggestionBox.innerHTML = '';
+}
+
+codeSelect.addEventListener('change', () => {
+    autofillMotifFromCode(codeSelect.value);
+});
+
 </script>
 
 </body>
